@@ -1,0 +1,10 @@
+# Files #
+#########
+.pypirc
+*.pyc
+*.log
+
+# Directories #
+###############
+dist/
+VanescoSC2.egg-info
