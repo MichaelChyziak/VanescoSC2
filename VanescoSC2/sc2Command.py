@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 #MIT License
 #
 #Copyright (c) 2017 TheChyz
@@ -22,22 +20,20 @@
 #OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #SOFTWARE.
 
-import VanescoSC2.sc2Initialization
+from s2clientprotocol import sc2api_pb2
+
+import websocket
+import sc2Initialization
 import logging
+log = logging.getLogger(__name__)
 
-def main():
-
-    logging.basicConfig(
-        level=logging.DEBUG,
-        format="%(levelname)-8s: %(message)s",
-        datefmt="%d,%b,%Y %H:%M:%S",
-        filename="log\info.log",
-        filemode="w")
-    logging.info("Log Start")
-
-    sc2_socket = VanescoSC2.sc2Initialization.sc2Connection()
-    VanescoSC2.sc2Initialization.sc2Start(sc2_socket)
-
-
-if __name__ == "__main__":
-  main()
+def doCommand(sc2_socket, command):
+    log.info("Attempting to send command %s" % command)
+    sc2_socket.send(command().SerializeToString())
+    log.info("Sent command %s" % command)
+    response = sc2api_pb2.Response()
+    log.info("Awaiting response from sc2")
+    response_bytes = sc2_socket.recv()
+    response.ParseFromString(response_bytes)
+    log.info("Received response:\n%s" % response)
+    return response

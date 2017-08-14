@@ -21,6 +21,7 @@
 #SOFTWARE.
 
 from s2clientprotocol import sc2api_pb2
+import sc2Command
 
 import websocket
 import subprocess
@@ -31,7 +32,7 @@ import time
 import logging
 log = logging.getLogger(__name__)
 
-def SC2Connection():
+def sc2Connection():
     port = 5000
     args = [
         "C:\Users\chyziak\Desktop\my_folder\my_games\sc2\StarCraft II\Versions\Base55958\SC2_x64.exe", #path where SC2 x64 executable resides
@@ -47,36 +48,19 @@ def SC2Connection():
     return sc2_socket
 
 
-def SC2Start(sc2_socket):
-    sc2_socket.send(createGame().SerializeToString())
-    response = sc2api_pb2.Response()
-    response_bytes = sc2_socket.recv()
-    response.ParseFromString(response_bytes)
-
-    sc2_socket.send(joinGame().SerializeToString())
-    response = sc2api_pb2.Response()
-    response_bytes = sc2_socket.recv()
-    response.ParseFromString(response_bytes)
-
-    return response
-
+def sc2Start(sc2_socket):
+    sc2Command.doCommand(sc2_socket, createGame)
+    sc2Command.doCommand(sc2_socket, joinGame)
 
 def getObservation(sc2_socket):
     request = sc2api_pb2.Request()
     request.observation.SetInParent()
-
-    sc2_socket.send(request.SerializeToString())
-    response = sc2api_pb2.Response()
-    response_bytes = sc2_socket.recv()
-    response.ParseFromString(response_bytes)
-
-    return response
+    return request
 
 
 def createGame():
     request = sc2api_pb2.Request()
     request.create_game.battlenet_map_name = "Ohana LE"
-    request.create_game.disable_fog = True
     request.create_game.realtime = True
 
     agent = request.create_game.player_setup.add()
