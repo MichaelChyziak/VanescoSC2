@@ -28,7 +28,7 @@ import logging
 def main():
 
     logging.basicConfig(
-        level=logging.DEBUG,
+        level=logging.INFO,  # Change to "level=loggin.DEBUG" to see debug messages
         format="%(levelname)-8s: %(message)s",
         datefmt="%d,%b,%Y %H:%M:%S",
         filename="log\info.log",
@@ -37,6 +37,7 @@ def main():
 
     sc2_socket = VanescoSC2.sc2Initialization.sc2Connection()
     VanescoSC2.sc2Initialization.sc2Start(sc2_socket)
+    VanescoSC2.sc2Initialization.sc2Observer(sc2_socket)
 
 
 if __name__ == "__main__":

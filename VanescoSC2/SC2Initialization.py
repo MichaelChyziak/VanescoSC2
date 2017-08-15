@@ -49,14 +49,30 @@ def sc2Connection():
 
 
 def sc2Start(sc2_socket):
+    log.info("Requesting createGame")
     sc2Command.doCommand(sc2_socket, createGame)
+    log.info("Successfully requested createGame")
+    log.info("Requesting joinGame")
     sc2Command.doCommand(sc2_socket, joinGame)
+    log.info("Successfully requested joinGame")
 
-def getObservation(sc2_socket):
+def sc2Observer(sc2_socket):
+    for i in range(30):
+        log.info("Observations #%d" % (i+1))
+        response = sc2Command.doCommand(sc2_socket, getObservation)
+        actions = response.observation.actions
+        action_errors = response.observation.action_errors
+        observation = response.observation.observation
+        player_result = response.observation.player_result
+        log.info("actions:\n%s" % actions)
+        log.info("action_errors:\n%s" % action_errors)
+        log.info("observation:\n%s" % observation)
+        log.info("player_result:\n%s" % player_result)
+
+def getObservation():
     request = sc2api_pb2.Request()
     request.observation.SetInParent()
     return request
-
 
 def createGame():
     request = sc2api_pb2.Request()
@@ -86,9 +102,9 @@ def connectSocket(port):
     minute = 60 #number of seconds in a minute
     for i in range(minute):
         try:
-            log.info("Attempt #%d to connect to sc2api" % (i+1))
+            log.debug("Attempt #%d to connect to sc2api" % (i+1))
             return websocket.create_connection("ws://127.0.0.1:%s/sc2api" % port, timeout=minute)
         except socket.error:
-            log.info("Waiting 1 second before trying again")
+            log.debug("Waiting 1 second before trying again")
             time.sleep(1)
     log.error("Could not connect to sc2api")
