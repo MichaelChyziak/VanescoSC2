@@ -22,6 +22,7 @@
 
 from s2clientprotocol import sc2api_pb2
 import sc2Command
+import sc2Actions
 
 import websocket
 import subprocess
@@ -55,6 +56,10 @@ def sc2Start(sc2_socket):
     log.info("Requesting joinGame")
     sc2Command.doCommand(sc2_socket, joinGame)
     log.info("Successfully requested joinGame")
+
+
+def sc2Agent(sc2_socket):
+    response = sc2Command.doCommand(sc2_socket, sc2Actions.action)
 
 def sc2Observer(sc2_socket):
     for i in range(30):
@@ -90,10 +95,14 @@ def createGame():
     return request
 
 def joinGame():
-	request = sc2api_pb2.Request()
-	request.join_game.race = sc2api_pb2.Protoss
-	request.join_game.options.raw = True
-	return request
+    request = sc2api_pb2.Request()
+    request.join_game.options.feature_layer.width = 24 # fine tune
+    request.join_game.options.feature_layer.resolution.x = 84 # fine tune
+    request.join_game.options.feature_layer.resolution.y = 84 # fine tune
+    request.join_game.options.feature_layer.minimap_resolution.x = 64 # fine tune
+    request.join_game.options.feature_layer.minimap_resolution.y = 64 # fine tune
+    request.join_game.race = sc2api_pb2.Protoss
+    return request
 
 
 #Try to connect to the sc2api websocket for 1 minute
