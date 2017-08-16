@@ -58,21 +58,24 @@ def sc2Start(sc2_socket):
     log.info("Successfully requested joinGame")
 
 def sc2Observer(sc2_socket):
-    for i in range(30):
-        log.info("Observations #%d" % (i+1))
-        response = sc2Command.doCommand(sc2_socket, getObservation)
-        actions = response.observation.actions
-        action_errors = response.observation.action_errors
-        observation = response.observation.observation
-        player_result = response.observation.player_result
-        log.info("actions:\n%s" % actions)
-        log.info("action_errors:\n%s" % action_errors)
-        log.info("observation:\n%s" % observation)
-        log.info("player_result:\n%s" % player_result)
+    observation = sc2Command.doCommand(sc2_socket, getObservation)
+    data = sc2Command.doCommand(sc2_socket, getData)
+    query = sc2Command.doCommand(sc2_socket, getQuery)
+    return (observation, data, query)
 
 def getObservation():
     request = sc2api_pb2.Request()
     request.observation.SetInParent()
+    return request
+
+def getData():
+    request = sc2api_pb2.Request()
+    request.data.SetInParent()
+    return request
+
+def getQuery():
+    request = sc2api_pb2.Request()
+    request.query.SetInParent()
     return request
 
 def createGame():

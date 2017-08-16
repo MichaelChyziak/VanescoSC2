@@ -41,12 +41,12 @@ def main():
 
     sc2_socket = VanescoSC2.sc2Initialization.sc2Connection()
     VanescoSC2.sc2Initialization.sc2Start(sc2_socket)
-    VanescoSC2.sc2Initialization.sc2Observer(sc2_socket)
     Agents.random_agent.run(sc2_socket)
 
 def signal_handler(signal, frame):
-        log.info("Program ended using ctrl+c")
-        sys.exit(0)
+    log = logging.getLogger(__name__)
+    log.info("Program ended using ctrl+c")
+    sys.exit(0)
 
 
 if __name__ == "__main__":
