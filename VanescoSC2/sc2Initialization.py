@@ -57,10 +57,6 @@ def sc2Start(sc2_socket):
     sc2Command.doCommand(sc2_socket, joinGame)
     log.info("Successfully requested joinGame")
 
-
-def sc2Agent(sc2_socket):
-    response = sc2Command.doCommand(sc2_socket, sc2Actions.action)
-
 def sc2Observer(sc2_socket):
     for i in range(30):
         log.info("Observations #%d" % (i+1))

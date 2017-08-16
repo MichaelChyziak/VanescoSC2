@@ -25,13 +25,6 @@ from s2clientprotocol import sc2api_pb2
 import logging
 log = logging.getLogger(__name__)
 
-def action():
-    for i in range(30):
-        request = selectScreenArea(20, 20, 60, 60, True)
-        request = selectScreenArea(30, 30, 40, 40, False)
-    request = selectScreenArea(20, 20, 60, 60, True)
-    return request
-
 # Values of x and y must be from (and including) 0-64
 # Simulates click on minimap
 # TODO tested slightly

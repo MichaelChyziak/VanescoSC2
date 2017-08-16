@@ -22,25 +22,19 @@
 #OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #SOFTWARE.
 
-import VanescoSC2.sc2Initialization
-import Agents.random_agent
+from s2clientprotocol import sc2api_pb2
+
+import random
+import time
+import VanescoSC2.sc2Actions
+import VanescoSC2.sc2Command
 import logging
+log = logging.getLogger(__name__)
 
-def main():
-
-    logging.basicConfig(
-        level=logging.DEBUG,  # Change to "level=loggin.DEBUG" to see debug messages
-        format="%(levelname)-8s: %(message)s",
-        datefmt="%d,%b,%Y %H:%M:%S",
-        filename="log\info.log",
-        filemode="w")
-    logging.info("Log Start")
-
-    sc2_socket = VanescoSC2.sc2Initialization.sc2Connection()
-    VanescoSC2.sc2Initialization.sc2Start(sc2_socket)
-    VanescoSC2.sc2Initialization.sc2Observer(sc2_socket)
-    Agents.random_agent.run(sc2_socket)
-
-
-if __name__ == "__main__":
-  main()
+def run(sc2_socket):
+    random.seed(a=1)
+    while True:
+        time.sleep(1)
+        rand_x = random.randint(0, 64)
+        rand_y = random.randint(0, 64)
+        response = VanescoSC2.sc2Command.doCommand(sc2_socket, VanescoSC2.sc2Actions.moveCamera, rand_x, rand_y)

@@ -27,9 +27,9 @@ import sc2Initialization
 import logging
 log = logging.getLogger(__name__)
 
-def doCommand(sc2_socket, command):
+def doCommand(sc2_socket, command, *arguments):
     log.debug("Attempting to send command %s" % command)
-    sc2_socket.send(command().SerializeToString())
+    sc2_socket.send(command(*arguments).SerializeToString())
     log.debug("Sent command %s" % command)
     response = sc2api_pb2.Response()
     log.debug("Awaiting response from sc2")

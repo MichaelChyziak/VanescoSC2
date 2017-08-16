@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 #MIT License
 #
 #Copyright (c) 2017 TheChyz
@@ -21,26 +19,3 @@
 #LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 #OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #SOFTWARE.
-
-import VanescoSC2.sc2Initialization
-import Agents.random_agent
-import logging
-
-def main():
-
-    logging.basicConfig(
-        level=logging.DEBUG,  # Change to "level=loggin.DEBUG" to see debug messages
-        format="%(levelname)-8s: %(message)s",
-        datefmt="%d,%b,%Y %H:%M:%S",
-        filename="log\info.log",
-        filemode="w")
-    logging.info("Log Start")
-
-    sc2_socket = VanescoSC2.sc2Initialization.sc2Connection()
-    VanescoSC2.sc2Initialization.sc2Start(sc2_socket)
-    VanescoSC2.sc2Initialization.sc2Observer(sc2_socket)
-    Agents.random_agent.run(sc2_socket)
-
-
-if __name__ == "__main__":
-  main()
