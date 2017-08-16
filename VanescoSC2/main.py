@@ -25,8 +25,11 @@
 import VanescoSC2.sc2Initialization
 import Agents.random_agent
 import logging
+import signal
+import sys
 
 def main():
+    signal.signal(signal.SIGINT, signal_handler)
 
     logging.basicConfig(
         level=logging.DEBUG,  # Change to "level=loggin.DEBUG" to see debug messages
@@ -40,6 +43,10 @@ def main():
     VanescoSC2.sc2Initialization.sc2Start(sc2_socket)
     VanescoSC2.sc2Initialization.sc2Observer(sc2_socket)
     Agents.random_agent.run(sc2_socket)
+
+def signal_handler(signal, frame):
+        log.info("Program ended using ctrl+c")
+        sys.exit(0)
 
 
 if __name__ == "__main__":
