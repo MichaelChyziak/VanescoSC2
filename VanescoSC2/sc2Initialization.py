@@ -101,7 +101,7 @@ def joinGame():
     request.join_game.options.feature_layer.resolution.y = 84 # fine tune
     request.join_game.options.feature_layer.minimap_resolution.x = 64 # fine tune
     request.join_game.options.feature_layer.minimap_resolution.y = 64 # fine tune
-    request.join_game.race = sc2api_pb2.Protoss
+    request.join_game.race = sc2api_pb2.Terran
     return request
 
 
