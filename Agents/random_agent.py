@@ -22,7 +22,7 @@
 #OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #SOFTWARE.
 
-from s2clientprotocol import sc2api_pb2
+from s2clientprotocol import sc2api_pb2, spatial_pb2, ui_pb2
 
 import random
 import time
@@ -33,33 +33,74 @@ import VanescoSC2.sc2Initialization
 import logging
 log = logging.getLogger(__name__)
 
-global_minerals = [50]
-global_game_loop = [0]
-
-
 def run(sc2_socket):
     random.seed(a=1)
     while True:
-        time.sleep(1)
         (observation, data, query) = VanescoSC2.sc2Initialization.sc2Observer(sc2_socket)
-        minerals = observation.observation.observation.player_common.minerals
-        game_loop = observation.observation.observation.game_loop
-        print(calculateMineralsPerMinute(minerals, game_loop))
-        rand_x = random.randint(0, 64)
-        rand_y = random.randint(0, 64)
-        response = VanescoSC2.sc2Command.doCommand(sc2_socket, VanescoSC2.sc2Actions.moveCamera, rand_x, rand_y)
+        #
+        # rand_x = random.randint(0, 64)
+        # rand_y = random.randint(0, 64)
+        # response = VanescoSC2.sc2Command.doCommand(sc2_socket, VanescoSC2.sc2Actions.moveCamera, rand_x, rand_y)
+        #
+        # response = VanescoSC2.sc2Command.doCommand(sc2_socket, VanescoSC2.sc2Actions.chat,
+        #                                             You are playing against VanescoSC2, a Starcaft 2 AI")
+        #
+        # rand_x_start = random.randint(0, 84)
+        # rand_y_start = random.randint(0, 84)
+        # rand_x_end = random.randint(0, 84)
+        # rand_y_end = random.randint(0, 84)
+        # rand_add = bool(random.getrandbits(1))
+        # response = VanescoSC2.sc2Command.doCommand(sc2_socket, VanescoSC2.sc2Actions.unitSelectScreenArea,
+        #                                                 rand_x_start, rand_y_start, rand_x_end, rand_y_end, rand_add)
+        #
+        # rand_x = random.randint(0, 84)
+        # rand_y = random.randint(0, 84)
+        # rand_type = random.choice([spatial_pb2.ActionSpatialUnitSelectionPoint.Select,
+        #                             spatial_pb2.ActionSpatialUnitSelectionPoint.Toggle,
+        #                             spatial_pb2.ActionSpatialUnitSelectionPoint.AllType,
+        #                             spatial_pb2.ActionSpatialUnitSelectionPoint.AddAllType])
+        # response = VanescoSC2.sc2Command.doCommand(sc2_socket, VanescoSC2.sc2Actions.unitSelectPoint,
+        #                                             rand_x, rand_y, rand_type)
+        #
+        # ability_list = getAbilitiesForUnit(observation)
+        # if ability_list: #makes sure that ability_list is not empty
+        #   rand_ability_id = random.choice(ability_list)
+        #   rand_x = rand_y = random.randint(0, 84)
+        #   rand_y = rand_y = random.randint(0, 84)
+        #   rand_queue_command = bool(random.getrandbits(1))
+        #   response = VanescoSC2.sc2Command.doCommand(sc2_socket, VanescoSC2.sc2Actions.unitCommandScreen,
+        #                                               rand_ability_id, rand_x, rand_y, rand_queue_command)
+        #
+        #
+        # ability_list = getAbilitiesForUnit(observation)
+        # if ability_list: #makes sure that ability_list is not empty
+        #   rand_ability_id = random.choice(ability_list)
+        #   rand_x = rand_y = random.randint(0, 84)
+        #   rand_y = rand_y = random.randint(0, 84)
+        #   rand_queue_command = bool(random.getrandbits(1))
+        #   response = VanescoSC2.sc2Command.doCommand(sc2_socket, VanescoSC2.sc2Actions.unitCommandMinimap,
+        #                                               rand_ability_id, rand_x, rand_y, rand_queue_command)
+        #
+        #
+        rand_action = random.choice([ui_pb2.ActionControlGroup.Recall,
+                                    ui_pb2.ActionControlGroup.Set,
+                                    ui_pb2.ActionControlGroup.Append,
+                                    ui_pb2.ActionControlGroup.SetAndSteal,
+                                    ui_pb2.ActionControlGroup.AppendAndSteal])
+        rand_index = random.randint(0, 9)
+        response = VanescoSC2.sc2Command.doCommand(sc2_socket, VanescoSC2.sc2Actions.controlGroupRecall,
+                                                    rand_action, rand_index)
 
-# Calculates mineral income per minute
-# Updates values based on 10 second intervals
-def calculateMineralsPerMinute(minerals, game_loop):
-    game_loops_per_min = 1344 # 22.4 gameloops/s From Blizzard * 60s/min
-    game_loops_per_interval = 22.4 * 10
-    min_per_game_loop = 1.0/float(game_loops_per_min)
-    if (game_loop - global_game_loop[0]) > game_loops_per_interval:
-        global_minerals.pop(0)
-        global_game_loop.pop(0)
-    global_minerals.append(minerals)
-    global_game_loop.append(game_loop)
-    delta_minerals = global_minerals[len(global_minerals)-1] - global_minerals[0]
-    delta_game_loop = global_game_loop[len(global_game_loop)-1] - global_game_loop[0]
-    return float(delta_minerals)/float(delta_game_loop*min_per_game_loop)
+
+
+
+
+# observation.observation.observation.abilities is repeated
+# observation.observation.observation.abilities.ability_id has the possible list of ability_id that can be taken
+# observation should be a observation
+# This function will return a list of possible ability_id if possible, otherwise it will return an empty list
+def getAbilitiesForUnit(observation):
+    ability_id_list = []
+    for ability in observation.observation.observation.abilities:
+        ability_id_list.append(ability.ability_id)
+    return ability_id_list
