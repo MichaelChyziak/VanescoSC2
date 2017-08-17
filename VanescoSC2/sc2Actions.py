@@ -155,7 +155,6 @@ def controlGroupRecall(action_input, index):
 
 # Select army hotkey
 # add: bool value. add army to current selection?
-# TODO untested
 def selectArmy(add):
     # log.debug("Select Army:\nadd=%r" % (add))
     request = sc2api_pb2.Request()
@@ -165,7 +164,6 @@ def selectArmy(add):
 
 # Select warp gates hotkey
 # add: bool value. add warp gates to current selection?
-# TODO untested
 def selectWarpGates(add):
     # log.debug("Select Warp Gates:\nadd=%r" % (add))
     request = sc2api_pb2.Request()
@@ -174,12 +172,12 @@ def selectWarpGates(add):
     return request
 
 # Select larva
-# TODO test if works
+# Works but only on hatcher/lair/hive
 def selectLarva():
     # log.debug("Select Larva")
     request = sc2api_pb2.Request()
     action = request.action.actions.add()
-    action.action_ui.select_larva.setInParent()
+    action.action_ui.select_larva.SetInParent()
     return request
 
 # Select idle worker(s)
@@ -188,7 +186,6 @@ def selectLarva():
 #               .Add (shift+click. Adds single idle worker to current selection.)
 #               .All (control+click. Selects all idle workers.)
 #               .AddAll (shift+control+click. Adds all idle workers to current selection.)
-# TODO untested
 def selectIdleWorker(click_type):
     # log.debug("Select Idle Worker:\nclick_type=%d" % (click_type))
     request = sc2api_pb2.Request()
@@ -203,6 +200,7 @@ def selectIdleWorker(click_type):
 #               .DeselectUnit (Shift Click on icon)
 #               .SelectAllOfType (Control Click on icon.)
 #               .DeselectAllOfType (Control+Shift Click on icon.)
+# Select a specific unit from the multi-unit selection
 # TODO test out
 def multiPanel(panel_type, unit_index):
     # log.debug("Multi Panel:\ntype=%d\nunit_index=%d" % (panel_type, unit_index))

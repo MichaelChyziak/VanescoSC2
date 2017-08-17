@@ -82,18 +82,34 @@ def run(sc2_socket):
         #                                               rand_ability_id, rand_x, rand_y, rand_queue_command)
         #
         #
-        rand_action = random.choice([ui_pb2.ActionControlGroup.Recall,
-                                    ui_pb2.ActionControlGroup.Set,
-                                    ui_pb2.ActionControlGroup.Append,
-                                    ui_pb2.ActionControlGroup.SetAndSteal,
-                                    ui_pb2.ActionControlGroup.AppendAndSteal])
-        rand_index = random.randint(0, 9)
-        response = VanescoSC2.sc2Command.doCommand(sc2_socket, VanescoSC2.sc2Actions.controlGroupRecall,
-                                                    rand_action, rand_index)
-
-
-
-
+        # rand_action = random.choice([ui_pb2.ActionControlGroup.Recall,
+        #                             ui_pb2.ActionControlGroup.Set,
+        #                             ui_pb2.ActionControlGroup.Append,
+        #                             ui_pb2.ActionControlGroup.SetAndSteal,
+        #                             ui_pb2.ActionControlGroup.AppendAndSteal])
+        # rand_index = random.randint(0, 9)
+        # response = VanescoSC2.sc2Command.doCommand(sc2_socket, VanescoSC2.sc2Actions.controlGroupRecall,
+        #                                             rand_action, rand_index)
+        #
+        #
+        # rand_add = bool(random.getrandbits(1))
+        # response = VanescoSC2.sc2Command.doCommand(sc2_socket, VanescoSC2.sc2Actions.selectArmy, rand_add)
+        #
+        #
+        #
+        # response = VanescoSC2.sc2Command.doCommand(sc2_socket, VanescoSC2.sc2Actions.selectLarva)
+        #
+        #
+        #
+        # rand_click_type = random.choice([ui_pb2.ActionSelectIdleWorker.Set,
+        #                             ui_pb2.ActionSelectIdleWorker.Add,
+        #                             ui_pb2.ActionSelectIdleWorker.All,
+        #                             ui_pb2.ActionSelectIdleWorker.AddAll])
+        # response = VanescoSC2.sc2Command.doCommand(sc2_socket, VanescoSC2.sc2Actions.selectIdleWorker,
+        #                                             rand_click_type)
+        #
+        #
+        #
 
 # observation.observation.observation.abilities is repeated
 # observation.observation.observation.abilities.ability_id has the possible list of ability_id that can be taken
