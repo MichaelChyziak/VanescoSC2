@@ -59,9 +59,7 @@ def sc2Start(sc2_socket):
 
 def sc2Observer(sc2_socket):
     observation = sc2Command.doCommand(sc2_socket, getObservation)
-    data = sc2Command.doCommand(sc2_socket, getData)
-    query = sc2Command.doCommand(sc2_socket, getQuery)
-    return (observation, data, query)
+    return observation
 
 def getObservation():
     request = sc2api_pb2.Request()

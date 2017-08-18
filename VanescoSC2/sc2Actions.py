@@ -194,14 +194,13 @@ def selectIdleWorker(click_type):
     return request
 
 
-# Click on icons?
 # panel_type: one of the following (all starting with "ui_pb2.ActionMultiPanel")
 #               .SingleSelect (Click on icon)
 #               .DeselectUnit (Shift Click on icon)
 #               .SelectAllOfType (Control Click on icon.)
 #               .DeselectAllOfType (Control+Shift Click on icon.)
+# unit_index: the index of the unit in the selection (starts at 1)
 # Select a specific unit from the multi-unit selection
-# TODO test out
 def multiPanel(panel_type, unit_index):
     # log.debug("Multi Panel:\ntype=%d\nunit_index=%d" % (panel_type, unit_index))
     request = sc2api_pb2.Request()
@@ -210,7 +209,8 @@ def multiPanel(panel_type, unit_index):
     action.action_ui.multi_panel.unit_index = unit_index
     return request
 
-# Not sure what this is...
+# Unload a unit from a transport/bunker/nydus/etc.
+# unit_index: the index of the unit in the selection (starts at 0)
 # TODO untested
 def cargoPanel(unit_index):
     # log.debug("Cargo Panel:\nunit_index=%d" % (unit_index))
@@ -219,7 +219,8 @@ def cargoPanel(unit_index):
     action.action_ui.cargo_panel.unit_index = unit_index
     return request
 
-# Not sure what this is...
+# Cancel a unit in the build queue.
+# unit_index: the index of the unit in the selection (starts at 0)
 # TODO untested
 def productionPanel(unit_index):
     # log.debug("Production Panel:\nunit_index=%d" % (unit_index))

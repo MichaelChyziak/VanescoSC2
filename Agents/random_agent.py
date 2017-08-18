@@ -36,7 +36,7 @@ log = logging.getLogger(__name__)
 def run(sc2_socket):
     random.seed(a=1)
     while True:
-        (observation, data, query) = VanescoSC2.sc2Initialization.sc2Observer(sc2_socket)
+        request = VanescoSC2.sc2Initialization.sc2Observer(sc2_socket)
         #
         # rand_x = random.randint(0, 64)
         # rand_y = random.randint(0, 64)
@@ -62,7 +62,7 @@ def run(sc2_socket):
         # response = VanescoSC2.sc2Command.doCommand(sc2_socket, VanescoSC2.sc2Actions.unitSelectPoint,
         #                                             rand_x, rand_y, rand_type)
         #
-        # ability_list = getAbilitiesForUnit(observation)
+        # ability_list = getAbilitiesForUnit(request)
         # if ability_list: #makes sure that ability_list is not empty
         #   rand_ability_id = random.choice(ability_list)
         #   rand_x = rand_y = random.randint(0, 84)
@@ -72,7 +72,7 @@ def run(sc2_socket):
         #                                               rand_ability_id, rand_x, rand_y, rand_queue_command)
         #
         #
-        # ability_list = getAbilitiesForUnit(observation)
+        # ability_list = getAbilitiesForUnit(request)
         # if ability_list: #makes sure that ability_list is not empty
         #   rand_ability_id = random.choice(ability_list)
         #   rand_x = rand_y = random.randint(0, 84)
@@ -110,13 +110,72 @@ def run(sc2_socket):
         #
         #
         #
+        # units_selected = getUnitsSelected(request)
+        # if units_selected:
+        #     rand_unit_index = random.randint(1, len(units_selected))
+        #     rand_panel_type = random.choice([ui_pb2.ActionMultiPanel.SingleSelect,
+        #                                       ui_pb2.ActionMultiPanel.DeselectUnit,
+        #                                       ui_pb2.ActionMultiPanel.SelectAllOfType,
+        #                                       ui_pb2.ActionMultiPanel.DeselectAllOfType])
+        #     response = VanescoSC2.sc2Command.doCommand(sc2_socket, VanescoSC2.sc2Actions.multiPanel,
+        #                                                  rand_panel_type, rand_unit_index)
+        #
+        #
+        #
+        # units_cargo = getUnitsCargo(request)
+        # if units_cargo:
+        #     rand_unit_index = random.randint(0, len(units_cargo))
+        #     response = VanescoSC2.sc2Command.doCommand(sc2_socket, VanescoSC2.sc2Actions.cargoPanel,
+        #                                                  rand_unit_index)
+        #
+        #
+        #
+        # units_queued = getUnitsQueued(request)
+        # if units_queued:
+        #     rand_unit_index = random.randint(0, len(units_queued))
+        #     response = VanescoSC2.sc2Command.doCommand(sc2_socket, VanescoSC2.sc2Actions.productionPanel,
+        #                                                  rand_unit_index)
+        #
+        #
+        #
+        # ability_list = getAbilitiesForUnit(request)
+        # if ability_list: #makes sure that ability_list is not empty
+        #   rand_ability_id = random.choice(ability_list)
+        #   response = VanescoSC2.sc2Command.doCommand(sc2_socket, VanescoSC2.sc2Actions.toggleAutocast,
+        #                                               rand_ability_id)
 
-# observation.observation.observation.abilities is repeated
-# observation.observation.observation.abilities.ability_id has the possible list of ability_id that can be taken
-# observation should be a observation
+
 # This function will return a list of possible ability_id if possible, otherwise it will return an empty list
-def getAbilitiesForUnit(observation):
+def getAbilitiesForUnit(request):
     ability_id_list = []
-    for ability in observation.observation.observation.abilities:
+    for ability in request.observation.observation.abilities:
         ability_id_list.append(ability.ability_id)
     return ability_id_list
+
+# This function will return a list of all of the units that can be selected. If none will return an empty list
+def getUnitsSelected(request):
+    units_selected = []
+    for unit in request.observation.observation.ui_data.single.unit:
+        if unit.player_relative == 1:
+            units_selected.append(unit.unit_type)
+    for units in request.observation.observation.ui_data.multi.unit:
+        if units.player_relative == 1:
+            units_selected.append(units.unit_type)
+
+# Return a list of all of the units in a cargo (including the cargo itself). If none will return an empty list
+# TODO untested
+def getUnitsCargo(request):
+    for unit in request.observation.observation.ui_data.cargo.unit:
+        if unit.player_relative == 1:
+            units_selected.append(unit.unit_type)
+            for cargo in unit.passengers:
+                units_selected.append(cargo.unit_type)
+
+# Return a list of all of the units in a queued (including the original). If none will return an empty list
+# TODO untested
+def getUnitsQueued(request):
+    for unit in request.observation.observation.ui_data.production.unit:
+        if unit.player_relative == 1:
+            units_selected.append(unit.unit_type)
+            for queue in unit.build_queue:
+                units_selected.append(queue.unit_type)
