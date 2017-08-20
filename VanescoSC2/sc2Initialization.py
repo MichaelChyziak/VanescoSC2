@@ -57,6 +57,26 @@ def sc2Start(sc2_socket):
     sc2Command.doCommand(sc2_socket, joinGame)
     log.info("Successfully requested joinGame")
 
+# base replay path is
+def sc2ReplayStart(sc2_socket, replay_name):
+    REPLAY_BASE = "C:\Users\chyziak\Desktop\my_folder\my_games\sc2\StarCraft II\Replays\\"
+    replay_path_full = REPLAY_BASE + replay_name
+    log.info("Requesting joinReplay")
+    sc2Command.doCommand(sc2_socket, joinReplay, replay_path_full, 1, False)
+    log.info("Successfully requested joinReplay")
+
+def joinReplay(replay_path, observed_player_id, disable_fog):
+    request = sc2api_pb2.Request()
+    request.start_replay.replay_path = replay_path
+    request.start_replay.disable_fog = disable_fog
+    request.start_replay.observed_player_id = observed_player_id
+    request.start_replay.options.feature_layer.width = 24 # fine tune
+    request.start_replay.options.feature_layer.resolution.x = 84 # fine tune
+    request.start_replay.options.feature_layer.resolution.y = 84 # fine tune
+    request.start_replay.options.feature_layer.minimap_resolution.x = 64 # fine tune
+    request.start_replay.options.feature_layer.minimap_resolution.y = 64 # fine tune
+    return request
+
 def sc2Observer(sc2_socket):
     observation = sc2Command.doCommand(sc2_socket, getObservation)
     return observation

@@ -20,20 +20,10 @@
 #OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #SOFTWARE.
 
-from s2clientprotocol import sc2api_pb2
-
-import websocket
-import sc2Initialization
 import logging
 log = logging.getLogger(__name__)
 
-def doCommand(sc2_socket, command, *arguments):
-    # log.debug("Attempting to send command %s" % command)
-    sc2_socket.send(command(*arguments).SerializeToString())
-    log.debug("Sent command %s" % command)
-    response = sc2api_pb2.Response()
-    # log.debug("Awaiting response from sc2")
-    response_bytes = sc2_socket.recv()
-    response.ParseFromString(response_bytes)
-    log.debug("Received response:\n%s" % response)
-    return response
+def run(request):
+    #player_common = request.observation.observation.player_common
+    #feature_layer_data = request.observation.observation.feature_layer_data
+    log.info(request)

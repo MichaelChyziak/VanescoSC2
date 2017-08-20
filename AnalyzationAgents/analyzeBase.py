@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 #MIT License
 #
 #Copyright (c) 2017 TheChyz
@@ -23,31 +21,17 @@
 #SOFTWARE.
 
 import VanescoSC2.sc2Initialization
-import Agents.random_agent
-import logging
-import signal
-import sys
+import VanescoSC2.sc2Command
+import AnalyzationAgents.miningAgent
+from s2clientprotocol import sc2api_pb2
 
-def main():
-    signal.signal(signal.SIGINT, signal_handler)
+def analyze(sc2_socket):
+    while True:
+        request = VanescoSC2.sc2Initialization.sc2Observer(sc2_socket)
+        AnalyzationAgents.miningAgent.run(request)
+        VanescoSC2.sc2Command.doCommand(sc2_socket, stepReplay)
 
-    logging.basicConfig(
-        level=logging.DEBUG,  # Change to "level=loggin.DEBUG" to see debug messages
-        format="%(levelname)-8s: %(message)s",
-        datefmt="%d,%b,%Y %H:%M:%S",
-        filename="log\info.log",
-        filemode="w")
-    logging.info("Log Start")
-
-    sc2_socket = VanescoSC2.sc2Initialization.sc2Connection()
-    VanescoSC2.sc2Initialization.sc2Start(sc2_socket)
-    Agents.random_agent.run(sc2_socket)
-
-def signal_handler(signal, frame):
-    log = logging.getLogger(__name__)
-    log.info("Program ended using ctrl+c")
-    sys.exit(0)
-
-
-if __name__ == "__main__":
-  main()
+def stepReplay():
+    request = sc2api_pb2.Request()
+    request.step.count = 1
+    return request

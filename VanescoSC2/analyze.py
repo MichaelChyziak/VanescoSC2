@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 #MIT License
 #
 #Copyright (c) 2017 TheChyz
@@ -20,20 +22,36 @@
 #OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #SOFTWARE.
 
-from s2clientprotocol import sc2api_pb2
-
-import websocket
-import sc2Initialization
+import VanescoSC2.sc2Initialization
+import AnalyzationAgents.analyzeBase
 import logging
-log = logging.getLogger(__name__)
+import signal
+import sys
 
-def doCommand(sc2_socket, command, *arguments):
-    # log.debug("Attempting to send command %s" % command)
-    sc2_socket.send(command(*arguments).SerializeToString())
-    log.debug("Sent command %s" % command)
-    response = sc2api_pb2.Response()
-    # log.debug("Awaiting response from sc2")
-    response_bytes = sc2_socket.recv()
-    response.ParseFromString(response_bytes)
-    log.debug("Received response:\n%s" % response)
-    return response
+def main(replay_name):
+    signal.signal(signal.SIGINT, signal_handler)
+
+    logging.basicConfig(
+        level=logging.DEBUG,  # Change to "level=loggin.DEBUG" to see debug messages
+        format="%(levelname)-8s: %(message)s",
+        datefmt="%d,%b,%Y %H:%M:%S",
+        filename="log\info.log",
+        filemode="w")
+    logging.info("Log Start")
+
+    sc2_socket = VanescoSC2.sc2Initialization.sc2Connection()
+    VanescoSC2.sc2Initialization.sc2ReplayStart(sc2_socket, replay_name)
+    AnalyzationAgents.analyzeBase.analyze(sc2_socket)
+
+
+def signal_handler(signal, frame):
+    log = logging.getLogger(__name__)
+    log.info("Program ended using ctrl+c")
+    sys.exit(0)
+
+
+if __name__ == "__main__":
+    if len(sys.argv) != 2:
+        print("ERROR: Need to supply replay name to start")
+        sys.exit(0)
+    main(sys.argv[1])
