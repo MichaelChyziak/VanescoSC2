@@ -27,8 +27,11 @@ import AnalyzationAgents.analyzeBase
 import logging
 import signal
 import sys
+import glob
+import random
+from s2clientprotocol import sc2api_pb2
 
-def main(replay_name):
+def main():
     signal.signal(signal.SIGINT, signal_handler)
 
     logging.basicConfig(
@@ -40,9 +43,71 @@ def main(replay_name):
     logging.info("Log Start")
 
     sc2_socket = VanescoSC2.sc2Initialization.sc2Connection()
-    VanescoSC2.sc2Initialization.sc2ReplayStart(sc2_socket, replay_name)
-    AnalyzationAgents.analyzeBase.analyze(sc2_socket)
+    replays = getReplays("C:\Users\chyziak\Desktop\my_folder\my_games\sc2\StarCraft II\Replays\Replays\\")
+    (weights_first_layer, weights_second_layer) = randomizeWeights()
 
+    replays_left = len(replays)
+    network_correct = True
+
+    while replays_left != 0:
+        replays_left = len(replays)
+        for replay_name in replays:
+            replays_left = replays_left - 1
+            network_correct = analyzeReplay(weights_first_layer, weights_second_layer, sc2_socket, replay_name, 1)
+            if network_correct == False:
+                (weights_first_layer, weights_second_layer) = changeWeights(weights_first_layer, weights_second_layer)
+                break
+            network_correct = analyzeReplay(weights_first_layer, weights_second_layer, sc2_socket, replay_name, 2)
+            if network_correct == False:
+                (weights_first_layer, weights_second_layer) = changeWeights(weights_first_layer, weights_second_layer)
+                break
+
+def changeWeights(weights_first_layer, weights_second_layer):
+    layer_size = 100
+
+    weights_first_layer[random.randint(0, (layer_size*layer_size)-1)] = random.randint(-1, 1)
+    weights_first_layer[random.randint(0, (layer_size*layer_size)-1)] = random.randint(-1, 1)
+    weights_first_layer[random.randint(0, (layer_size*layer_size)-1)] = random.randint(-1, 1)
+    weights_first_layer[random.randint(0, (layer_size*layer_size)-1)] = random.randint(-1, 1)
+    weights_first_layer[random.randint(0, (layer_size*layer_size)-1)] = random.randint(-1, 1)
+    weights_first_layer[random.randint(0, (layer_size*layer_size)-1)] = random.randint(-1, 1)
+    weights_first_layer[random.randint(0, (layer_size*layer_size)-1)] = random.randint(-1, 1)
+    weights_first_layer[random.randint(0, (layer_size*layer_size)-1)] = random.randint(-1, 1)
+    weights_first_layer[random.randint(0, (layer_size*layer_size)-1)] = random.randint(-1, 1)
+    weights_first_layer[random.randint(0, (layer_size*layer_size)-1)] = random.randint(-1, 1)
+
+    weights_second_layer[random.randint(0, layer_size-1)] = random.randint(-1, 1)
+
+    return (weights_first_layer, weights_second_layer)
+
+def randomizeWeights():
+    random.seed(a=1)
+    layer_size = 100
+    weights_first_layer = [] #values 0-99 for mineral layer[0], 100-199 for mineral layer[1], etc
+    weights_second_layer = [] #values 0 for first node layer[0], 1 for first node layer[1], etc
+
+    for i in range(layer_size*layer_size):
+        weights_first_layer.append(random.randint(-1, 1))
+    for i in range(layer_size):
+        weights_second_layer.append(random.randint(-1, 1))
+
+    return (weights_first_layer, weights_second_layer)
+
+def getReplays(replay_dir):
+    return glob.glob(replay_dir+"*.SC2Replay")
+
+
+def analyzeReplay(weights_first_layer, weights_second_layer, sc2_socket, replay_name, player_id):
+    network_correct = True
+
+    VanescoSC2.sc2Initialization.sc2ReplayStart(sc2_socket, replay_name, player_id)
+    (score_predictor, game_outcome) = AnalyzationAgents.analyzeBase.analyze(weights_first_layer, weights_second_layer, sc2_socket, player_id)
+    if (game_outcome == sc2api_pb2.Victory and score_predictor < 0) or (game_outcome == sc2api_pb2.Defeat and score_predictor > 0):
+        network_correct = False
+        logging.info("Incorrect Prediction")
+    else:
+        logging.info("Correct Prediction")
+    return network_correct
 
 def signal_handler(signal, frame):
     log = logging.getLogger(__name__)
@@ -51,7 +116,4 @@ def signal_handler(signal, frame):
 
 
 if __name__ == "__main__":
-    if len(sys.argv) != 2:
-        print("ERROR: Need to supply replay name to start")
-        sys.exit(0)
-    main(sys.argv[1])
+    main()

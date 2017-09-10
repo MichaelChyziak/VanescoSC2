@@ -57,12 +57,10 @@ def sc2Start(sc2_socket):
     sc2Command.doCommand(sc2_socket, joinGame)
     log.info("Successfully requested joinGame")
 
-# base replay path is
-def sc2ReplayStart(sc2_socket, replay_name):
-    REPLAY_BASE = "C:\Users\chyziak\Desktop\my_folder\my_games\sc2\StarCraft II\Replays\\"
-    replay_path_full = REPLAY_BASE + replay_name
+
+def sc2ReplayStart(sc2_socket, replay_name, player_id):
     log.info("Requesting joinReplay")
-    sc2Command.doCommand(sc2_socket, joinReplay, replay_path_full, 1, False)
+    sc2Command.doCommand(sc2_socket, joinReplay, replay_name, player_id, False)
     log.info("Successfully requested joinReplay")
 
 def joinReplay(replay_path, observed_player_id, disable_fog):

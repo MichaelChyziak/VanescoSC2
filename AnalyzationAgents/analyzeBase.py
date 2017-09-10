@@ -22,14 +22,58 @@
 
 import VanescoSC2.sc2Initialization
 import VanescoSC2.sc2Command
-import AnalyzationAgents.miningAgent
+import AnalyzationAgents.agent
 from s2clientprotocol import sc2api_pb2
 
-def analyze(sc2_socket):
-    while True:
-        request = VanescoSC2.sc2Initialization.sc2Observer(sc2_socket)
-        AnalyzationAgents.miningAgent.run(request)
+import logging
+log = logging.getLogger(__name__)
+
+def analyze(weights_first_layer, weights_second_layer, sc2_socket, player_id):
+
+    # Output (positive # = win, negative # = loss)
+    score_predictor = 0
+    layer_size = 100
+    mineral_step_loop = 0
+    mineral_layer = [0] * layer_size
+
+    nodes_first_layer = [0] * layer_size
+    final_node = 0
+
+
+    game_done = False
+    game_outcome = None
+    while not game_done:
+        observation = VanescoSC2.sc2Initialization.sc2Observer(sc2_socket)
+        if observation.observation.player_result:
+            game_outcome = observation.observation.player_result[player_id-1].result
+            game_done = True
+
+        (mineral_value, game_loop) = AnalyzationAgents.agent.run(observation)
         VanescoSC2.sc2Command.doCommand(sc2_socket, stepReplay)
+
+        #Add new value to layer
+        mineral_layer= [mineral_value] + mineral_layer[0:(layer_size-1)]
+
+        #Calculate first node value layer
+        for i in range(layer_size):
+            nodes_first_layer[i] = (mineral_layer[0] * weights_first_layer[i*layer_size])
+            for j in range(1, layer_size):
+                nodes_first_layer[i] = nodes_first_layer[i] + (mineral_layer[j] * weights_first_layer[(i*layer_size) + j])
+
+        final_node = 0
+        for i in range(layer_size):
+            final_node = final_node + (nodes_first_layer[i] * weights_second_layer[i])
+
+        score_predictor = score_predictor + final_node
+
+        #log.info("Game Loop: %d" % game_loop)
+        #log.info("Final Node: %d" % final_node)
+        #log.info("Score Predictor: %d" % score_predictor)
+    log.info("Game Complete")
+    log.info("Weights First Layer: "+str(weights_first_layer))
+    log.info("Weights Second Layer: "+str(weights_second_layer))
+    log.info("Score Predictor: %d" % score_predictor)
+    return (score_predictor, game_outcome)
 
 def stepReplay():
     request = sc2api_pb2.Request()

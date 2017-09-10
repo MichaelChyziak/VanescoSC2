@@ -3,6 +3,7 @@
 .pypirc
 *.pyc
 *.log
+*.png
 
 # Directories #
 ###############

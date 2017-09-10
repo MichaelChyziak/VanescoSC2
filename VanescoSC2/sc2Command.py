@@ -30,10 +30,10 @@ log = logging.getLogger(__name__)
 def doCommand(sc2_socket, command, *arguments):
     # log.debug("Attempting to send command %s" % command)
     sc2_socket.send(command(*arguments).SerializeToString())
-    log.debug("Sent command %s" % command)
+    #log.debug("Sent command %s" % command)
     response = sc2api_pb2.Response()
     # log.debug("Awaiting response from sc2")
     response_bytes = sc2_socket.recv()
     response.ParseFromString(response_bytes)
-    log.debug("Received response:\n%s" % response)
+    #log.debug("Received response:\n%s" % response)
     return response
