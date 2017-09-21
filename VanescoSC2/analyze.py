@@ -29,6 +29,7 @@ import signal
 import sys
 import glob
 import random
+import os
 from s2clientprotocol import sc2api_pb2
 
 def main():
@@ -44,44 +45,102 @@ def main():
 
     sc2_socket = VanescoSC2.sc2Initialization.sc2Connection()
     replays = getReplays("C:\Users\chyziak\Desktop\my_folder\my_games\sc2\StarCraft II\Replays\Replays\\")
-    (weights_first_layer, weights_second_layer) = randomizeWeights()
 
-    replays_left = len(replays)
-    network_correct = True
+    saveMineralData(sc2_socket, replays)
+    #readMineralData
 
-    while replays_left != 0:
-        replays_left = len(replays)
-        for replay_name in replays:
-            replays_left = replays_left - 1
-            network_correct = analyzeReplay(weights_first_layer, weights_second_layer, sc2_socket, replay_name, 1)
-            if network_correct == False:
-                (weights_first_layer, weights_second_layer) = changeWeights(weights_first_layer, weights_second_layer)
-                break
-            network_correct = analyzeReplay(weights_first_layer, weights_second_layer, sc2_socket, replay_name, 2)
-            if network_correct == False:
-                (weights_first_layer, weights_second_layer) = changeWeights(weights_first_layer, weights_second_layer)
-                break
+    # #Actual network
+    # (weights_first_layer, weights_second_layer) = randomizeWeights()
+    #
+    # replays_left = len(replays)
+    # network_correct = True
+    #
+    # while replays_left != 0:
+    #     replays_left = len(replays)
+    #     for replay_name in replays:
+    #         replays_left = replays_left - 1
+    #         (network_correct, game_outcome) = analyzeReplay(weights_first_layer, weights_second_layer, sc2_socket, replay_name, 1)
+    #         if network_correct == False:
+    #             (weights_first_layer, weights_second_layer) = changeWeights(weights_first_layer, weights_second_layer, game_outcome)
+    #             break
+    #         (network_correct, game_outcome) = analyzeReplay(weights_first_layer, weights_second_layer, sc2_socket, replay_name, 2)
+    #         if network_correct == False:
+    #             (weights_first_layer, weights_second_layer) = changeWeights(weights_first_layer, weights_second_layer, game_outcome)
+    #             break
 
-def changeWeights(weights_first_layer, weights_second_layer):
+def saveMineralData(sc2_socket, replays):
+    replay_file = None
+    if os.path.isfile("C:\Users\chyziak\Desktop\my_folder\VanescoSC2\log\mineral_info.log"):
+        with open("C:\Users\chyziak\Desktop\my_folder\VanescoSC2\log\mineral_info.log", "r") as mineral_file:
+            for line in mineral_file:
+                if "C:\Users\chyziak\Desktop\my_folder\my_games\sc2\StarCraft II\Replays\Replays\\" in line:
+                    if replay_file is None:
+                        replay_file = line
+                    else:
+                        if replay_file == line:
+                            replays.remove(replay_file)
+                        replay_file = None
+        mineral_file.close()
+
+    mineral_file = open("C:\Users\chyziak\Desktop\my_folder\VanescoSC2\log\mineral_info.log", "a")
+
+    for replay_name in replays:
+        #player_id 1
+        player_id = 1
+        VanescoSC2.sc2Initialization.sc2ReplayStart(sc2_socket, replay_name, player_id)
+        mineral_data = AnalyzationAgents.analyzeBase.analyzeMinerals(sc2_socket)
+        mineral_file.write(replay_name+"\n")
+        mineral_file.write(str(player_id)+"\n")
+        mineral_file.write(str(mineral_data)+"\n")
+
+        #player_id 2
+        player_id = 2
+        VanescoSC2.sc2Initialization.sc2ReplayStart(sc2_socket, replay_name, player_id)
+        mineral_data = AnalyzationAgents.analyzeBase.analyzeMinerals(sc2_socket)
+        mineral_file.write(replay_name+"\n")
+        mineral_file.write(str(player_id)+"\n")
+        mineral_file.write(str(mineral_data)+"\n")
+    mineral_file.close()
+
+def changeWeights(weights_first_layer, weights_second_layer, game_outcome):
     layer_size = 100
 
-    weights_first_layer[random.randint(0, (layer_size*layer_size)-1)] = random.randint(-1, 1)
-    weights_first_layer[random.randint(0, (layer_size*layer_size)-1)] = random.randint(-1, 1)
-    weights_first_layer[random.randint(0, (layer_size*layer_size)-1)] = random.randint(-1, 1)
-    weights_first_layer[random.randint(0, (layer_size*layer_size)-1)] = random.randint(-1, 1)
-    weights_first_layer[random.randint(0, (layer_size*layer_size)-1)] = random.randint(-1, 1)
-    weights_first_layer[random.randint(0, (layer_size*layer_size)-1)] = random.randint(-1, 1)
-    weights_first_layer[random.randint(0, (layer_size*layer_size)-1)] = random.randint(-1, 1)
-    weights_first_layer[random.randint(0, (layer_size*layer_size)-1)] = random.randint(-1, 1)
-    weights_first_layer[random.randint(0, (layer_size*layer_size)-1)] = random.randint(-1, 1)
-    weights_first_layer[random.randint(0, (layer_size*layer_size)-1)] = random.randint(-1, 1)
+    if game_outcome == sc2api_pb2.Victory:
+        for i in range(10):
+            found = False
+            while not found:
+                rand_index = random.randint(0, (layer_size*layer_size)-1)
+                if weights_first_layer[rand_index] != 1:
+                    weights_first_layer[rand_index] = random.randint(weights_first_layer[rand_index] + 1, 1)
+                    found = True
+        for i in range(1):
+            found = False
+            while not found:
+                rand_index = random.randint(0, layer_size-1)
+                if weights_second_layer[rand_index] != 1:
+                    weights_second_layer[rand_index] = random.randint(weights_second_layer[rand_index] + 1, 1)
+                    found = True
 
-    weights_second_layer[random.randint(0, layer_size-1)] = random.randint(-1, 1)
+    elif game_outcome == sc2api_pb2.Defeat:
+        for i in range(10):
+            found = False
+            while not found:
+                rand_index = random.randint(0, (layer_size*layer_size)-1)
+                if weights_first_layer[rand_index] != -1:
+                    weights_first_layer[rand_index] = random.randint(-1, weights_first_layer[rand_index] - 1)
+                    found = True
+        for i in range(1):
+            found = False
+            while not found:
+                rand_index = random.randint(0, layer_size-1)
+                if weights_second_layer[rand_index] != -1:
+                    weights_second_layer[rand_index] = random.randint(-1, weights_second_layer[rand_index] - 1)
+                    found = True
 
     return (weights_first_layer, weights_second_layer)
 
 def randomizeWeights():
-    random.seed(a=1)
+    random.seed(a=19)
     layer_size = 100
     weights_first_layer = [] #values 0-99 for mineral layer[0], 100-199 for mineral layer[1], etc
     weights_second_layer = [] #values 0 for first node layer[0], 1 for first node layer[1], etc
@@ -94,7 +153,11 @@ def randomizeWeights():
     return (weights_first_layer, weights_second_layer)
 
 def getReplays(replay_dir):
-    return glob.glob(replay_dir+"*.SC2Replay")
+    dir_list = os.listdir(replay_dir)
+    for dir_listing in dir_list:
+        if ".SC2Replay" not in dir_listing:
+            dir_list.remove(dir_listing)
+    return dir_list
 
 
 def analyzeReplay(weights_first_layer, weights_second_layer, sc2_socket, replay_name, player_id):
@@ -107,7 +170,7 @@ def analyzeReplay(weights_first_layer, weights_second_layer, sc2_socket, replay_
         logging.info("Incorrect Prediction")
     else:
         logging.info("Correct Prediction")
-    return network_correct
+    return (network_correct, game_outcome)
 
 def signal_handler(signal, frame):
     log = logging.getLogger(__name__)

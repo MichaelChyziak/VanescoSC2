@@ -36,7 +36,7 @@ log = logging.getLogger(__name__)
 def sc2Connection():
     port = 5000
     args = [
-        "C:\Users\chyziak\Desktop\my_folder\my_games\sc2\StarCraft II\Versions\Base55958\SC2_x64.exe", #path where SC2 x64 executable resides
+        "C:\Users\chyziak\Desktop\my_folder\my_games\sc2\StarCraft II\Versions\Base57507\SC2_x64.exe", #path where SC2 x64 executable resides
         "-listen", "127.0.0.1", #listen to localhost (Blizzard recommends)
         "-port", str(port), #Blizzard recommends using port 5000
         "-displayMode", "0", #"0" means viewing in windowed mode

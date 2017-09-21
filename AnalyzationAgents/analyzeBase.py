@@ -75,6 +75,19 @@ def analyze(weights_first_layer, weights_second_layer, sc2_socket, player_id):
     log.info("Score Predictor: %d" % score_predictor)
     return (score_predictor, game_outcome)
 
+def analyzeMinerals(sc2_socket):
+    mineral_list = []
+    game_done = False
+    while not game_done:
+        observation = VanescoSC2.sc2Initialization.sc2Observer(sc2_socket)
+        if observation.observation.player_result:
+            game_done = True
+        (mineral_value, game_loop) = AnalyzationAgents.agent.run(observation)
+        mineral_list.append(mineral_value)
+        VanescoSC2.sc2Command.doCommand(sc2_socket, stepReplay)
+    return mineral_list
+
+
 def stepReplay():
     request = sc2api_pb2.Request()
     request.step.count = 1
